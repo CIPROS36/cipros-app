@@ -28,11 +28,20 @@ html,body{margin:0;height:100%;background:#123A63;font-family:system-ui,-apple-s
   var EXEC='https://script.google.com/macros/s/AKfycbxSV1EZ1BGS4LVb11nj6TCaKScML0TFN7ms42DS8ke7GGMFEiXZZeYuLg1Xcaa6as9e/exec';
   var q=new URLSearchParams(location.search), g=q.get('g');
   var src=EXEC+'?app=cursos'+(g?'&g='+encodeURIComponent(g):'');
-  var f=document.getElementById('app'), l=document.getElementById('load');
-  f.onload=function(){l.style.opacity=0;setTimeout(function(){l.style.display='none'},300)};
+  var f=document.getElementById('app'), l=document.getElementById('load'), ok=false, K='cipros_modo';
+  function get(){try{return localStorage.getItem(K)}catch(e){return null}}
+  function set(v){try{localStorage.setItem(K,v)}catch(e){}}
+  function topo(){set('topo');location.replace(src)}
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});
+  // Se o Google não deixar abrir dentro da app (ex.: várias contas Google no telemóvel), abre directamente.
+  if(get()==='topo'&&!q.has('iframe')){location.replace(src);return;}
+  addEventListener('message',function(e){
+    if(e.data==='cipros-ok'&&!ok){ok=true;set('iframe');l.style.opacity=0;setTimeout(function(){l.style.display='none'},300);}
+  });
+  f.onload=function(){setTimeout(function(){if(!ok)topo()},12000)};
+  setTimeout(function(){if(!ok)topo()},40000);
   f.src=src;
   if(g&&history.replaceState)history.replaceState(null,'','/');
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});
 })();
 </script>
 </body>
